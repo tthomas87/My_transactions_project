@@ -22,3 +22,7 @@ This project demonstrates a basic ETL (Extract, Transform, Load) pipeline. It fo
 3. Run the script located in the `scripts/` folder:
    ```bash
    python scripts/ingest_data.py
+## Future Improvements
+* **Visualization:** Connect the SQLite database to Power BI or Tableau for real-time dashboarding.
+* **Cloud Integration:** Migrate the database to AWS S3 or Google BigQuery for cloud-scale processing.
+* **Scheduling:** Use Airflow or Cron jobs to automate the script execution on a daily basis.
