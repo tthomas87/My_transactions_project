@@ -44,7 +44,7 @@ try:
 
     with col1:
         st.subheader("Top 10 Products by Revenue")
-        st.dataframe(df_top, use_container_width=True)
+        st.table(df_top)
 
     with col2:
         st.subheader("Revenue Visualization")
