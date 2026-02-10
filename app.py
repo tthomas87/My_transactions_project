@@ -1,4 +1,4 @@
-from turtle import color
+# from turtle import color
 import streamlit as st
 import pandas as pd
 import sqlite3
@@ -8,7 +8,7 @@ st.set_page_config(page_title="Retail Data Dashboard", layout="wide")
 
 st.title("Retail Analytics Dashboard")
 st.markdown("### Advanced Analysis of Kaggle Transactions")
-with st.expander("ℹ️ About this Project"):
+with st.expander("About this Project"):
     st.write(
         """
         This dashboard analyzes public retail transaction data sourced from **Kaggle**.
