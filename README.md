@@ -28,9 +28,20 @@ This project demonstrates a basic ETL (Extract, Transform, Load) pipeline. It fo
 * **Scheduling:** Use Airflow or Cron jobs to automate the script execution on a daily basis.
 ## 📊 Live Demo
 You can access the interactive dashboard here: 
-[👉 Live Retail Analytics Dashboard](ΣΥΜΠΛΗΡΩΣΕ_ΕΔΩ_ΤΟ_LINK_ΣΟΥ)
+[👉 Live Retail Analytics Dashboard](https://mytransactionsproject-9p3n64vvp4rxs8jpqk3cw5.streamlit.app)
 
 ## 🛠 Lessons Learned
 * **Big Data Handling**: Solved GitHub's 100MB limit using ZIP compression.
 * **Mac/Linux Compatibility**: Fixed the `__MACOSX` zip issue by using terminal-based compression.
 * **Performance**: Implemented SQL-in-memory to ensure the app loads in under 5 seconds despite the large dataset.
+
+* # 📊 Retail Analytics Dashboard
+An end-to-end data engineering project using Python and SQL.
+
+## 🚀 Live Demo
+[ΕΔΩ ΒΑΛΕ ΤΟ LINK ΤΟΥ STREAMLIT ΣΟΥ]
+
+## 🛠 Features
+- **Dynamic Filtering:** Filter by Country to see localized trends.
+- **In-Memory Processing:** Uses SQLite for fast data aggregation.
+- **Time-Series Analysis:** Monthly sales growth visualization.
