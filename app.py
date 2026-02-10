@@ -28,10 +28,10 @@ def setup_database():
 try:
     conn = setup_database()
 
-    # SQL Query για τα Top Products
+    # SQL Query με στρογγυλοποίηση σε ακέραιο για πιο καθαρή εμφάνιση
     query = """
     SELECT ItemDescription, 
-           SUM(NumberOfItemsPurchased * CostPerItem) as total_sales
+           CAST(SUM(NumberOfItemsPurchased * CostPerItem) AS INT) as total_sales
     FROM data
     GROUP BY ItemDescription
     ORDER BY total_sales DESC
