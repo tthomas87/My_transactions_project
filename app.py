@@ -1,3 +1,4 @@
+from turtle import color
 import streamlit as st
 import pandas as pd
 import sqlite3
@@ -8,12 +9,14 @@ st.set_page_config(page_title="Retail Data Dashboard", layout="wide")
 st.title("Retail Analytics Dashboard")
 st.markdown("### Advanced Analysis of Kaggle Transactions")
 with st.expander("ℹ️ About this Project"):
-    st.write("""
+    st.write(
+        """
         This dashboard analyzes public retail transaction data sourced from **Kaggle**.
         It uses an **In-memory SQLite database** for real-time processing and is 
         hosted on **Streamlit Cloud**. All data is anonymized and intended for 
         analytical purposes.
-    """)
+    """
+    )
 
 zip_path = "data/transaction_data.csv.zip"
 
@@ -80,7 +83,7 @@ try:
     with col2:
         st.subheader("Revenue Visualization")
         fig1, ax1 = plt.subplots()
-        ax1.barh(df_top["ItemDescription"], df_top["total_sales"], color"#0077b6")
+        ax1.barh(df_top["ItemDescription"], df_top["total_sales"], color="#0077b6")
         ax1.invert_yaxis()
         ax1.set_xlabel("Total Sales ($)")
         st.pyplot(fig1)
@@ -95,7 +98,7 @@ try:
             df_time["Monthly_Sales"],
             marker="o",
             linestyle="-",
-            color"#e63946",
+            color="#e63946",
         )
         ax2.set_ylabel("Sales ($)")
         plt.xticks(rotation=45)
