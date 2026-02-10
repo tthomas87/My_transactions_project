@@ -26,3 +26,11 @@ This project demonstrates a basic ETL (Extract, Transform, Load) pipeline. It fo
 * **Visualization:** Connect the SQLite database to Power BI or Tableau for real-time dashboarding.
 * **Cloud Integration:** Migrate the database to AWS S3 or Google BigQuery for cloud-scale processing.
 * **Scheduling:** Use Airflow or Cron jobs to automate the script execution on a daily basis.
+## 📊 Live Demo
+You can access the interactive dashboard here: 
+[👉 Live Retail Analytics Dashboard](ΣΥΜΠΛΗΡΩΣΕ_ΕΔΩ_ΤΟ_LINK_ΣΟΥ)
+
+## 🛠 Lessons Learned
+* **Big Data Handling**: Solved GitHub's 100MB limit using ZIP compression.
+* **Mac/Linux Compatibility**: Fixed the `__MACOSX` zip issue by using terminal-based compression.
+* **Performance**: Implemented SQL-in-memory to ensure the app loads in under 5 seconds despite the large dataset.
