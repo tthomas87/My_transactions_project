@@ -145,34 +145,49 @@ try:
         )
 
     with col_s2:
-        st.subheader("Value vs. Frequency Analysis")
+        st.subheader("Customer Value vs. Order Frequency")
+
+        # Φιλτράρουμε τον "Πελάτη -1" μόνο για το γράφημα για να μην χαλάει την κλίμακα
+        df_plot = df_spenders[df_spenders["UserId"] != -1]
+
         fig3, ax3 = plt.subplots(figsize=(10, 6))
 
+        # Scatter plot με κανονική (linear) κλίμακα
         scatter = ax3.scatter(
-            df_spenders["total_orders"],
-            df_spenders["total_spent"],
-            c=df_spenders["total_spent"],
-            cmap="viridis",
-            s=200,
-            alpha=0.7,
-            edgecolors="black",
+            df_plot["total_orders"],
+            df_plot["total_spent"],
+            c=df_plot["total_spent"],
+            cmap="coolwarm",
+            s=250,
+            alpha=0.8,
+            edgecolors="white",
+            linewidth=1.5,
         )
 
-        # Logarithmic scales to handle outliers correctly
-        ax3.set_xscale("log")
-        ax3.set_yscale("log")
-
-        for i, txt in enumerate(df_spenders["UserId"]):
+        # Προσθήκη ετικετών (ID) πάνω από κάθε τελεία
+        for i, txt in enumerate(df_plot["UserId"]):
             ax3.annotate(
-                f" ID: {txt}",
-                (df_spenders["total_orders"].iat[i], df_spenders["total_spent"].iat[i]),
-                fontsize=9,
+                f"ID: {txt}",
+                (df_plot["total_orders"].iat[i], df_plot["total_spent"].iat[i]),
+                xytext=(5, 5),
+                textcoords="offset points",
+                fontsize=10,
                 fontweight="bold",
             )
 
-        ax3.set_xlabel("Number of Orders (Log Scale)")
-        ax3.set_ylabel("Total Spent ($) (Log Scale)")
-        ax3.grid(True, which="both", ls="-", alpha=0.2)
+        # Κανονικοί τίτλοι χωρίς δυνάμεις
+        ax3.set_xlabel("Number of Orders")
+        ax3.set_ylabel("Total Spent ($)")
+
+        # Μορφοποίηση των αξόνων για να φαίνονται εκατομμύρια (π.χ. 80M αντί για 80000000)
+        from matplotlib.ticker import FuncFormatter
+
+        def millions(x, pos):
+            return f"${x*1e-6:,.0f}M" if x >= 1e6 else f"${x:,.0f}"
+
+        ax3.yaxis.set_major_formatter(FuncFormatter(millions))
+        ax3.grid(True, linestyle="--", alpha=0.6)
+
         st.pyplot(fig3)
 
 except Exception as e:
