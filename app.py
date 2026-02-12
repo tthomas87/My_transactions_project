@@ -108,3 +108,38 @@ try:
 
 except Exception as e:
     st.error(f"Error: {e}")
+st.divider()
+st.header("👤 Customer Analytics")
+
+# --- QUERY 3: TOP SPENDERS ---
+query_spenders = f"""
+SELECT CustomerID, 
+       COUNT(TransactionId) as total_orders,
+       CAST(SUM(NumberOfItemsPurchased * CostPerItem) AS INT) as total_spent
+FROM data
+{where_clause}
+GROUP BY CustomerID
+ORDER BY total_spent DESC
+LIMIT 10;
+"""
+df_spenders = pd.read_sql_query(query_spenders, conn)
+
+col_s1, col_s2 = st.columns([1, 1])
+
+with col_s1:
+    st.subheader("Top 10 High-Value Customers")
+    st.table(df_spenders)
+
+with col_s2:
+    st.subheader("Spending vs Orders")
+    fig3, ax3 = plt.subplots()
+    ax3.scatter(
+        df_spenders["total_orders"], df_spenders["total_spent"], color="#e63946", s=100
+    )
+    for i, txt in enumerate(df_spenders["CustomerID"]):
+        ax3.annotate(
+            txt, (df_spenders["total_orders"].iat[i], df_spenders["total_spent"].iat[i])
+        )
+    ax3.set_xlabel("Number of Orders")
+    ax3.set_ylabel("Total Spent ($)")
+    st.pyplot(fig3)
