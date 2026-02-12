@@ -235,27 +235,57 @@ try:
     except Exception as basket_error:
         st.error(f"Could not process Market Basket Analysis: {basket_error}")
 
-    df_basket = pd.read_sql_query(query_basket, conn)
+    # --- RFM ANALYSIS SECTION ---
+    st.divider()
+    st.header("🎯 Customer Segmentation (RFM Analysis)")
+    st.markdown("Categorizing customers based on their buying behavior.")
 
-    col_b1, col_b2 = st.columns([1, 1.2])
+    # SQL query to calculate R, F, M per customer
+    # Note: We use '2011-12-10' as the reference date for this specific dataset
+    query_rfm = f"""
+        SELECT 
+            UserId,
+            CAST(JULIANDAY('2011-12-10') - JULIANDAY(MAX(TransactionTime)) AS INT) as Recency,
+            COUNT(DISTINCT TransactionId) as Frequency,
+            SUM(NumberOfItemsPurchased * CostPerItem) as Monetary
+        FROM data
+        {where_clause}
+        GROUP BY UserId
+        HAVING UserId IS NOT NULL
+    """
 
-    with col_b1:
-        st.subheader("Top 10 Product Pairs")
-        st.dataframe(df_basket, use_container_width=True)
+    df_rfm = pd.read_sql_query(query_rfm, conn)
 
-    with col_b2:
-        st.subheader("Pairing Strength Visualization")
-        fig4, ax4 = plt.subplots(figsize=(10, 6))
+    # Simple logic to label customers
+    def segment_customer(df):
+        if df["Monetary"] > df_rfm["Monetary"].quantile(0.8) and df[
+            "Frequency"
+        ] > df_rfm["Frequency"].quantile(0.8):
+            return "Champion"
+        elif df["Recency"] > df_rfm["Recency"].quantile(0.8):
+            return "At Risk"
+        else:
+            return "Standard"
 
-        # Creating clean labels for the pairs
-        pairs_labels = df_basket["Item_A"] + " \n+ " + df_basket["Item_B"]
+    df_rfm["Segment"] = df_rfm.apply(segment_customer, axis=1)
 
-        ax4.barh(pairs_labels, df_basket["frequency"], color="#e76f51")
-        ax4.invert_yaxis()
-        ax4.set_xlabel("Frequency (Occurrences in same basket)")
-        ax4.grid(axis="x", linestyle="--", alpha=0.6)
+    col_r1, col_r2 = st.columns([1, 1])
 
-        st.pyplot(fig4)
+    with col_r1:
+        st.subheader("Customer Segments Distribution")
+        segment_counts = df_rfm["Segment"].value_counts()
+        fig5, ax5 = plt.subplots()
+        ax5.pie(
+            segment_counts,
+            labels=segment_counts.index,
+            autopct="%1.1f%%",
+            colors=["#2a9d8f", "#e76f51", "#e9c46a"],
+        )
+        st.pyplot(fig5)
+
+    with col_r2:
+        st.subheader("Segment Details (Preview)")
+        st.dataframe(df_rfm.sort_values(by="Monetary", ascending=False).head(10))
 
 except Exception as e:
     st.error(f"Error: {e}")
