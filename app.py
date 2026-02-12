@@ -287,5 +287,99 @@ try:
         st.subheader("Segment Details (Preview)")
         st.dataframe(df_rfm.sort_values(by="Monetary", ascending=False).head(10))
 
+        # --- PRODUCT RECOMMENDER SECTION ---
+    st.divider()
+    st.header("🎯 Smart Product Recommender")
+
+    # Get a unique list of products for the dropdown
+    product_list = pd.read_sql_query(
+        "SELECT DISTINCT ItemDescription FROM data ORDER BY ItemDescription", conn
+    )
+    selected_item = st.selectbox(
+        "Select a product to see recommendations:", product_list["ItemDescription"]
+    )
+
+    if selected_item:
+        # Query to find items bought with the selected item
+        query_rec = f"""
+            SELECT b.ItemDescription, COUNT(*) as frequency
+            FROM data a
+            JOIN data b ON a.TransactionId = b.TransactionId
+            WHERE a.ItemDescription = '{selected_item.replace("'", "''")}' 
+            AND b.ItemDescription != '{selected_item.replace("'", "''")}'
+            GROUP BY b.ItemDescription
+            ORDER BY frequency DESC
+            LIMIT 5
+        """
+        df_rec = pd.read_sql_query(query_rec, conn)
+
+        if not df_rec.empty:
+            st.write(f"People who bought **{selected_item}** also bought:")
+
+            # Display recommendations in nice columns
+            rec_cols = st.columns(len(df_rec))
+            for i, row in df_rec.iterrows():
+                with rec_cols[i]:
+                    st.info(f"**{row['ItemDescription']}**")
+                    st.caption(f"Found in {row['frequency']} similar baskets")
+        else:
+            st.warning("No recommendations found for this item.")
+
+    # --- SALES FORECASTING SECTION ---
+    st.divider()
+    st.header("Sales Trend Forecasting")
+
+    # Prepare monthly data
+    query_trend = f"""
+        SELECT STRFTIME('%Y-%m', TransactionTime) as month, 
+               SUM(NumberOfItemsPurchased * CostPerItem) as monthly_sales
+        FROM data
+        {where_clause}
+        GROUP BY month
+        ORDER BY month
+    """
+    df_trend = pd.read_sql_query(query_trend, conn)
+    df_trend["month_index"] = range(len(df_trend))  # Needed for regression
+
+    if len(df_trend) > 1:
+        # Simple Linear Regression calculation (y = mx + b)
+        from sklearn.linear_model import LinearRegression
+        import numpy as np
+
+        X = df_trend[["month_index"]]
+        y = df_trend["monthly_sales"]
+        model = LinearRegression().fit(X, y)
+
+        # Predict next 3 months
+        future_months = np.array(
+            [[len(df_trend)], [len(df_trend) + 1], [len(df_trend) + 2]]
+        )
+        predictions = model.predict(future_months)
+
+        fig6, ax6 = plt.subplots(figsize=(10, 5))
+        ax6.plot(
+            df_trend["month"],
+            df_trend["monthly_sales"],
+            marker="o",
+            label="Actual Sales",
+        )
+
+        # Plot Trend Line
+        trend_line = model.predict(X)
+        ax6.plot(df_trend["month"], trend_line, "--", color="red", label="Trend Line")
+
+        ax6.set_title("Historical Sales & Future Trend")
+        ax6.set_ylabel("Sales ($)")
+        ax6.legend()
+        plt.xticks(rotation=45)
+        st.pyplot(fig6)
+
+        st.success(
+            f"The trend is currently **{'UPWARDS' if model.coef_[0] > 0 else 'DOWNWARDS'}**."
+        )
+    else:
+        st.info("Not enough historical data to generate a forecast.")
+
+
 except Exception as e:
     st.error(f"Error: {e}")
