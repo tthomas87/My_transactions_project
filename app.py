@@ -237,7 +237,7 @@ try:
 
     # --- RFM ANALYSIS SECTION ---
     st.divider()
-    st.header("🎯 Customer Segmentation (RFM Analysis)")
+    st.header("Customer Segmentation (RFM Analysis)")
     st.markdown("Categorizing customers based on their buying behavior.")
 
     # SQL query to calculate R, F, M per customer
@@ -289,7 +289,7 @@ try:
 
         # --- PRODUCT RECOMMENDER SECTION ---
     st.divider()
-    st.header("🎯 Smart Product Recommender")
+    st.header("Smart Product Recommender")
 
     # Get a unique list of products for the dropdown
     product_list = pd.read_sql_query(
