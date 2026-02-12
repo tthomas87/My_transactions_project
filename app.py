@@ -190,12 +190,14 @@ try:
 
         st.pyplot(fig3)
 
-       # --- OPTIMIZED MARKET BASKET ANALYSIS ---
+    # --- OPTIMIZED MARKET BASKET ANALYSIS ---
     st.divider()
     st.header("🛒 Market Basket Analysis (Product Pairing)")
-    st.markdown("Discover which products are frequently purchased together. *(Optimized for performance)*")
+    st.markdown(
+        "Discover which products are frequently purchased together. *(Optimized for performance)*"
+    )
 
-    # Optimization: We use a subquery to limit data to the top 10,000 rows 
+    # Optimization: We use a subquery to limit data to the top 10,000 rows
     # or the filtered country to prevent memory crashes.
     query_basket = f"""
         WITH subdata AS (
@@ -211,7 +213,7 @@ try:
         ORDER BY frequency DESC
         LIMIT 10
     """
-    
+
     try:
         df_basket = pd.read_sql_query(query_basket, conn)
 
@@ -223,8 +225,8 @@ try:
             with col_b2:
                 st.subheader("Pairing Strength Visualization")
                 fig4, ax4 = plt.subplots(figsize=(10, 6))
-                pairs_labels = df_basket['Item_A'] + " \n+ " + df_basket['Item_B']
-                ax4.barh(pairs_labels, df_basket['frequency'], color='#e76f51')
+                pairs_labels = df_basket["Item_A"] + " \n+ " + df_basket["Item_B"]
+                ax4.barh(pairs_labels, df_basket["frequency"], color="#e76f51")
                 ax4.invert_yaxis()
                 ax4.set_xlabel("Frequency")
                 st.pyplot(fig4)
@@ -232,7 +234,6 @@ try:
             st.warning("Not enough data to find pairs for the selected filters.")
     except Exception as basket_error:
         st.error(f"Could not process Market Basket Analysis: {basket_error}")
-    """
 
     df_basket = pd.read_sql_query(query_basket, conn)
 
