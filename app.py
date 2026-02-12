@@ -106,10 +106,11 @@ try:
     else:
         st.write("No time data available for this selection.")
 
+    # 6. Customer Segmentation Insights
     st.divider()
-    st.header("👤 Customer Analytics")
+    st.header("👤 Customer Segmentation Insights")
 
-    # --- QUERY 3: TOP SPENDERS ---
+    # Fetch Data for Customer Analytics
     query_spenders = f"""
     SELECT UserId, 
            COUNT(TransactionId) as total_orders, 
@@ -123,29 +124,55 @@ try:
     """
     df_spenders = pd.read_sql_query(query_spenders, conn)
 
-    col_s1, col_s2 = st.columns([1, 1])
+    # Metrics Cards
+    col_m1, col_m2, col_m3 = st.columns(3)
+    total_customers = pd.read_sql_query(
+        f"SELECT COUNT(DISTINCT UserId) FROM data {where_clause}", conn
+    ).iloc[0, 0]
+    avg_spend = df_spenders["total_spent"].mean()
+
+    col_m1.metric("Unique Customers", f"{total_customers:,}")
+    col_m2.metric("Avg Top-10 Spend", f"${avg_spend:,.0f}")
+    col_m3.metric("Top Customer ID", f"{df_spenders.iloc[0]['UserId']}")
+
+    # Visual Layout for Spenders
+    col_s1, col_s2 = st.columns([1, 1.5])
 
     with col_s1:
-        st.subheader("Top 10 High-Value Customers")
-        st.table(df_spenders)
+        st.subheader("Top 10 High-Value Table")
+        st.dataframe(
+            df_spenders.style.format({"total_spent": "${:,}", "total_orders": "{:,}"})
+        )
 
     with col_s2:
-        st.subheader("Spending vs Orders")
-        fig3, ax3 = plt.subplots()
-        ax3.scatter(
+        st.subheader("Value vs. Frequency Analysis")
+        fig3, ax3 = plt.subplots(figsize=(10, 6))
+
+        scatter = ax3.scatter(
             df_spenders["total_orders"],
             df_spenders["total_spent"],
-            color="#e63946",
-            s=100,
+            c=df_spenders["total_spent"],
+            cmap="viridis",
+            s=200,
+            alpha=0.7,
+            edgecolors="black",
         )
-        df_spenders.columns = ["UserId", "total_orders", "total_spent"]
+
+        # Logarithmic scales to handle outliers correctly
+        ax3.set_xscale("log")
+        ax3.set_yscale("log")
+
         for i, txt in enumerate(df_spenders["UserId"]):
             ax3.annotate(
-                txt,
+                f" ID: {txt}",
                 (df_spenders["total_orders"].iat[i], df_spenders["total_spent"].iat[i]),
+                fontsize=9,
+                fontweight="bold",
             )
-        ax3.set_xlabel("Number of Orders")
-        ax3.set_ylabel("Total Spent ($)")
+
+        ax3.set_xlabel("Number of Orders (Log Scale)")
+        ax3.set_ylabel("Total Spent ($) (Log Scale)")
+        ax3.grid(True, which="both", ls="-", alpha=0.2)
         st.pyplot(fig3)
 
 except Exception as e:
