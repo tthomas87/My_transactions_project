@@ -111,13 +111,13 @@ try:
 
     # --- QUERY 3: TOP SPENDERS ---
     query_spenders = f"""
-    SELECT CustomerID, 
-           COUNT(*) as total_orders,
+    SELECT UserId, 
+           COUNT(TransactionId) as total_orders, 
            CAST(SUM(NumberOfItemsPurchased * CostPerItem) AS INT) as total_spent
     FROM data
     {where_clause}
-    GROUP BY CustomerID
-    HAVING CustomerID IS NOT NULL
+    GROUP BY UserId
+    HAVING UserId IS NOT NULL
     ORDER BY total_spent DESC
     LIMIT 10;
     """
