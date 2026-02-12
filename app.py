@@ -190,5 +190,46 @@ try:
 
         st.pyplot(fig3)
 
+        # --- MARKET BASKET ANALYSIS SECTION ---
+    st.divider()
+    st.header("🛒 Market Basket Analysis (Product Pairing)")
+    st.markdown(
+        "Discover which products are frequently purchased together in the same transaction."
+    )
+
+    # SQL Query to find top product pairs
+    # We join the table with itself on TransactionId to find pairs
+    query_basket = f"""
+        SELECT a.ItemDescription AS Item_A, b.ItemDescription AS Item_B, COUNT(*) as frequency
+        FROM data a
+        JOIN data b ON a.TransactionId = b.TransactionId AND a.ItemDescription < b.ItemDescription
+        {where_clause.replace('WHERE', 'AND') if where_clause else ""}
+        GROUP BY Item_A, Item_B
+        ORDER BY frequency DESC
+        LIMIT 10
+    """
+
+    df_basket = pd.read_sql_query(query_basket, conn)
+
+    col_b1, col_b2 = st.columns([1, 1.2])
+
+    with col_b1:
+        st.subheader("Top 10 Product Pairs")
+        st.dataframe(df_basket, use_container_width=True)
+
+    with col_b2:
+        st.subheader("Pairing Strength Visualization")
+        fig4, ax4 = plt.subplots(figsize=(10, 6))
+
+        # Creating clean labels for the pairs
+        pairs_labels = df_basket["Item_A"] + " \n+ " + df_basket["Item_B"]
+
+        ax4.barh(pairs_labels, df_basket["frequency"], color="#e76f51")
+        ax4.invert_yaxis()
+        ax4.set_xlabel("Frequency (Occurrences in same basket)")
+        ax4.grid(axis="x", linestyle="--", alpha=0.6)
+
+        st.pyplot(fig4)
+
 except Exception as e:
     st.error(f"Error: {e}")
