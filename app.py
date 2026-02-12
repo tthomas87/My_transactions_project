@@ -190,23 +190,48 @@ try:
 
         st.pyplot(fig3)
 
-        # --- MARKET BASKET ANALYSIS SECTION ---
+       # --- OPTIMIZED MARKET BASKET ANALYSIS ---
     st.divider()
     st.header("🛒 Market Basket Analysis (Product Pairing)")
-    st.markdown(
-        "Discover which products are frequently purchased together in the same transaction."
-    )
+    st.markdown("Discover which products are frequently purchased together. *(Optimized for performance)*")
 
-    # SQL Query to find top product pairs
-    # We join the table with itself on TransactionId to find pairs
+    # Optimization: We use a subquery to limit data to the top 10,000 rows 
+    # or the filtered country to prevent memory crashes.
     query_basket = f"""
+        WITH subdata AS (
+            SELECT TransactionId, ItemDescription 
+            FROM data 
+            {where_clause}
+            LIMIT 50000 
+        )
         SELECT a.ItemDescription AS Item_A, b.ItemDescription AS Item_B, COUNT(*) as frequency
-        FROM data a
-        JOIN data b ON a.TransactionId = b.TransactionId AND a.ItemDescription < b.ItemDescription
-        {where_clause.replace('WHERE', 'AND') if where_clause else ""}
+        FROM subdata a
+        JOIN subdata b ON a.TransactionId = b.TransactionId AND a.ItemDescription < b.ItemDescription
         GROUP BY Item_A, Item_B
         ORDER BY frequency DESC
         LIMIT 10
+    """
+    
+    try:
+        df_basket = pd.read_sql_query(query_basket, conn)
+
+        if not df_basket.empty:
+            col_b1, col_b2 = st.columns([1, 1.2])
+            with col_b1:
+                st.subheader("Top 10 Product Pairs")
+                st.dataframe(df_basket, use_container_width=True)
+            with col_b2:
+                st.subheader("Pairing Strength Visualization")
+                fig4, ax4 = plt.subplots(figsize=(10, 6))
+                pairs_labels = df_basket['Item_A'] + " \n+ " + df_basket['Item_B']
+                ax4.barh(pairs_labels, df_basket['frequency'], color='#e76f51')
+                ax4.invert_yaxis()
+                ax4.set_xlabel("Frequency")
+                st.pyplot(fig4)
+        else:
+            st.warning("Not enough data to find pairs for the selected filters.")
+    except Exception as basket_error:
+        st.error(f"Could not process Market Basket Analysis: {basket_error}")
     """
 
     df_basket = pd.read_sql_query(query_basket, conn)
