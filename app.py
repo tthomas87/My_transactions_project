@@ -138,7 +138,7 @@ try:
             color="#e63946",
             s=100,
         )
-        for i, txt in enumerate(df_spenders["CustomerID"]):
+        for i, txt in enumerate(df_spenders["'UserId'"]):
             ax3.annotate(
                 txt,
                 (df_spenders["total_orders"].iat[i], df_spenders["total_spent"].iat[i]),
