@@ -76,9 +76,24 @@ These plots help translate raw data into understandable insights.
 
 ---
 
-## How to Run the Project
-```bash
-git clone https://github.com/tthomas87/My_transactions_project
-cd My_transactions_project
-pip install -r requirements.txt
-jupyter notebook
+#Retail Intelligence & Predictive Analytics Dashboard
+
+An end-to-end data science application that transforms raw retail transaction data into actionable business strategy. 
+
+## Key Features
+- **Customer Segmentation (RFM):** Classified customers into 'Champions', 'At Risk', and 'Standard' segments using Recency, Frequency, and Monetary analysis.
+- **Market Basket Analysis:** Implemented self-joins in SQL to discover top product pairings and cross-selling opportunities.
+- **Smart Recommender:** An interactive engine that suggests products based on historical association rules.
+- **Sales Forecasting:** Time-series analysis using Linear Regression to predict future revenue trends.
+
+## Tech Stack
+- **Language:** Python 3.x
+- **Framework:** Streamlit
+- **Database:** In-memory SQLite for high-performance SQL querying.
+- **Libraries:** Pandas, Scikit-learn, Matplotlib.
+
+## How to run
+1. Clone the repository.
+2. Install dependencies: `pip install -r requirements.txt`
+3. Run the app: `streamlit run app.py`
+
